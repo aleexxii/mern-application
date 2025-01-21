@@ -1,5 +1,5 @@
 import axios from '../utils/api'
-import { useDispatch, UseDispatch } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import { loginSuccess } from '../redux/authSlice'
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
