@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
-import { useSelector, UseSelector } from "react-redux"
+import { useSelector } from "react-redux"
 import LoginPage from "./pages/LoginPage"
 import ProtectedRoute from "./components/ProtectedRoute"
 import AdminDashboard from "./pages/AdminDashboard"
