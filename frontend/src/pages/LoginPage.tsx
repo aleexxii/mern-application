@@ -32,7 +32,7 @@ const LoginPage: React.FC = () => {
       })
 
       const data = await response.json()
-console.log('data >>', data);
+
       if(response.ok){
         dispatch(loginSuccess({token : data.token, role : data.role}))
         navigate('/home')
