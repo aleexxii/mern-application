@@ -5,6 +5,7 @@ import Homepage from "./pages/HomePage";
 import PrivateRoute from "./components/ProtectedRoute";
 import AdminDashboard from "./pages/AdminDashboard";
 import ProfilePage from "./pages/profilePage";
+import UsersPage from "./pages/UserPage";
 
 const App: React.FC = () => {
   return (
@@ -41,6 +42,14 @@ const App: React.FC = () => {
               </PrivateRoute>
             }
           />
+          <Route
+            path="/admin/users"
+            element={
+              <PrivateRoute role="admin">
+                <UsersPage />
+              </PrivateRoute>
+            }
+            />
         </Routes>
       </Router>
     </>
