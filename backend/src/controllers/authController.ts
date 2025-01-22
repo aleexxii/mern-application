@@ -24,3 +24,27 @@ export const signUp = async (req: Request, res: Response, next : NextFunction) :
     next(error)
   }
 };
+
+export const login = async (req : Request , res : Response, next : NextFunction) => {
+  const { email, password } = req.body
+
+  try{
+    const user = await User.findOne({email})
+
+    if(!user){
+      return next(errorHandler(401, 'User not found'))
+    }
+
+    const isPasswordMatch = await bcrypt.compare(password, user.password)
+
+    if(!isPasswordMatch){
+      return next(errorHandler(401,'Invalid password'))
+    }
+    const token = generateToken(user)
+    console.log('token >>', token);
+
+    res.status(200).json({message : 'Login success'})
+  }catch(err){
+    next(err)
+  }
+}
