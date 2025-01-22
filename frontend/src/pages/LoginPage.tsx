@@ -44,7 +44,7 @@ const LoginPage: React.FC = () => {
       const data = await response.json();
 
       if (response.ok) {
-        dispatch(loginSuccess({ token: data.token, role: data.userInfo.role }));
+        dispatch(loginSuccess({ token: data.token, role: data.userInfo.role, userInfo : data.userInfo }));
         if (data.userInfo.role === "user") {
           navigate("/home");
         } else if (data.userInfo.role == "admin") {

@@ -46,7 +46,7 @@ export const login = async (
       return next(errorHandler(401, "Invalid password"));
     }
     const token = generateToken(user);
-
+    console.log('token >> ', token);
     const userObject = user.toObject();
 
     const { password: userPassword, ...userInfo } = userObject;
@@ -57,8 +57,8 @@ export const login = async (
         maxAge: 24 * 60 * 60 * 1000,
       })
       .status(200)
-      .json({ userInfo });
-      
+      .json({token, userInfo });
+
   } catch (err) {
     next(err);
   }

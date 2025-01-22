@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface AuthState {
+  userInfo : Record<string,object> | null;
   loading: boolean;
   jwtToken: string | null;
   role: string | null;
@@ -14,6 +15,7 @@ const initialState: AuthState = {
   role: null,
   errorMessage: null,
   isAuthenticated : false,
+  userInfo : null,
 };
 
 const authSlice = createSlice({
@@ -24,11 +26,12 @@ const authSlice = createSlice({
       state.loading = true;
       state.errorMessage = null;
     },
-    loginSuccess(state, action: PayloadAction<{ token: string; role: string }>) {
+    loginSuccess(state, action: PayloadAction<{ token: string; role: string; userInfo:Record<string,object> }>) {
       state.loading = false;
       state.jwtToken = action.payload.token;
       state.role = action.payload.role;
       state.isAuthenticated = true;
+      state.userInfo = action.payload.userInfo
     },
     loginFailed(state, action: PayloadAction<string>) {
       state.loading = false;
