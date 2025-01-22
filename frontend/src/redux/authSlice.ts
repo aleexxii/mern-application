@@ -1,31 +1,48 @@
-
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-
 interface AuthState {
-    isAuthenticated : boolean;
-    userRole : string | null;
-    userInfo : object | null | any;
+  loading: boolean;
+  jwtToken: string | null;
+  role: string | null;
+  successMessage: string | null;
+  errorMessage: string | null;
 }
 
-const initialState : AuthState = {
-    isAuthenticated : false,
-    userRole : null,
-    userInfo : null
-}
+const initialState: AuthState = {
+  loading: false,
+  jwtToken: null,
+  role: null,
+  successMessage: null,
+  errorMessage: null,
+};
 
 const authSlice = createSlice({
-    name : 'auth',
-    initialState,
-    reducers : {
-        loginSuccess : (state, action : PayloadAction<{userRole : string;userInfo : any }>) => {
-            state.isAuthenticated = true;
-            state.userRole = action.payload.userRole;
-            state.userInfo = action.payload.userInfo
-        }
-    }
-})
+  name: "auth",
+  initialState,
+  reducers: {
+    startLoading(state) {
+      state.loading = true;
+      state.errorMessage = null;
+    },
+    setJwtToken(state, action: PayloadAction<{ token: string; role: string }>) {
+      state.loading = false;
+      state.jwtToken = action.payload.token;
+      state.role = action.payload.role;
+      state.successMessage = "Login successful!";
+    },
+    setErrorMessage(state, action: PayloadAction<string>) {
+      state.loading = false;
+      state.errorMessage = action.payload;
+    },
+    logout(state) {
+      state.jwtToken = null;
+      state.role = null;
+      state.successMessage = null;
+      state.errorMessage = null;
+    },
+  },
+});
 
-export const { loginSuccess} = authSlice.actions;
-export default authSlice.reducer
+export const { startLoading, setJwtToken, setErrorMessage, logout } = authSlice.actions;
 
+export default authSlice.reducer;

@@ -4,21 +4,21 @@ import cors from "cors";
 import path from "path";
 import connectDB from "./config/db";
 import authRoutes from './routes/authRoutes'
-import userRoutes from './routes/userRoutes'
-import adminRoutes from './routes/adminRoutes'
+import { errorHandlerMiddleware } from "./middleware/errorHandler";
+
 
 dotenv.config();
 
 connectDB();
 
 const app: Application = express();
-
 app.use(express.json());
 app.use(cors());
 app.use("../src/uploads", express.static(path.join(__dirname, "uploads")));
 app.use('/api/auth', authRoutes)
-app.use('/api/user', userRoutes)
-app.use('/api/admin', adminRoutes)
+
+
+app.use(errorHandlerMiddleware);
 
 const PORT = process.env.PORT || 5000;
 
