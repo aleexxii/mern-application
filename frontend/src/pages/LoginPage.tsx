@@ -1,48 +1,63 @@
-import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { RootState } from '../redux/store';
-import { loginFailed, loginSuccess, startLoading } from '../redux/authSlice';
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { RootState } from "../redux/store";
+import { loginFailed, loginSuccess, startLoading } from "../redux/authSlice";
 
 const LoginPage: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
+  const { loading, errorMessage, isAuthenticated, role } = useSelector(
+    (state: RootState) => state.auth
+  );
 
-  const { loading, errorMessage } = useSelector((state : RootState) => state.auth)
+  useEffect(() => {
+    if (isAuthenticated) {
+      if (role == "admin") {
+        navigate("/dashboard");
+      } else if (role == "user") {
+        navigate("/home");
+      }
+    }
+  });
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if(!email || !password){
-      alert("email and password are required")
-      return
+    if (!email || !password) {
+      alert("email and password are required");
+      return;
     }
-    
+
     try {
+      dispatch(startLoading());
 
-      dispatch(startLoading())
+      const response = await fetch("http://localhost:4000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-      const response = await fetch('http://localhost:4000/api/auth/login',{
-        method : 'POST',
-        headers : {'Content-Type' : 'application/json'},
-        body : JSON.stringify({email, password})
-      })
+      const data = await response.json();
 
-      const data = await response.json()
-
-      if(response.ok){
-        dispatch(loginSuccess({token : data.token, role : data.role}))
-        navigate('/home')
-      }else{
-        dispatch(loginFailed(data.error || 'Invalid credentials'))
+      if (response.ok) {
+        dispatch(loginSuccess({ token: data.token, role: data.userInfo.role }));
+        if (data.userInfo.role === "user") {
+          navigate("/home");
+        } else if (data.userInfo.role == "admin") {
+          navigate("/dashboard");
+        }
+      } else {
+        dispatch(loginFailed(data.error || "Invalid credentials"));
       }
-
     } catch (error) {
-      if(error instanceof Error)
-      dispatch(loginFailed(`Network Error please try again, ${error.message}`))
+      if (error instanceof Error)
+        dispatch(
+          loginFailed(`Network Error please try again, ${error.message}`)
+        );
     }
   };
 
@@ -53,10 +68,17 @@ const LoginPage: React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-green-200 via-blue-200 to-purple-200">
       <div className="bg-white bg-opacity-80 p-8 rounded-lg shadow-lg max-w-md w-full">
-        <h2 className="text-3xl font-bold mb-6 text-center text-blue-700">Welcome Back!</h2>
+        <h2 className="text-3xl font-bold mb-6 text-center text-blue-700">
+          Welcome Back!
+        </h2>
         <form onSubmit={handleLogin}>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">Email</label>
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="email"
+            >
+              Email
+            </label>
             <input
               id="email"
               type="email"
@@ -66,7 +88,12 @@ const LoginPage: React.FC = () => {
             />
           </div>
           <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">Password</label>
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="password"
+            >
+              Password
+            </label>
             <input
               id="password"
               type="password"
@@ -80,9 +107,11 @@ const LoginPage: React.FC = () => {
               type="submit"
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300 ease-in-out mb-4"
             >
-              {loading ? "logging In..." : 'Login'}
+              {loading ? "logging In..." : "Login"}
             </button>
-            {errorMessage && <p className='text-red-700 text-sm'>{errorMessage}</p>}
+            {errorMessage && (
+              <p className="text-red-700 text-sm">{errorMessage}</p>
+            )}
             <button
               type="button"
               onClick={handleGoogleLogin}
