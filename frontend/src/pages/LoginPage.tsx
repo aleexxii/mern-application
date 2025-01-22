@@ -1,13 +1,49 @@
-import React, { useState } from 'react';
-import 'tailwindcss/tailwind.css';
+import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { RootState } from '../redux/store';
+import { loginFailed, loginSuccess, startLoading } from '../redux/authSlice';
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
 
-  const handleLogin = (e: React.FormEvent) => {
+
+  const { loading, errorMessage } = useSelector((state : RootState) => state.auth)
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle login logic here
+
+    if(!email || !password){
+      alert("email and password are required")
+      return
+    }
+    
+    try {
+
+      dispatch(startLoading())
+
+      const response = await fetch('http://localhost:4000/api/auth/login',{
+        method : 'POST',
+        headers : {'Content-Type' : 'application/json'},
+        body : JSON.stringify({email, password})
+      })
+
+      const data = await response.json()
+console.log('data >>', data);
+      if(response.ok){
+        dispatch(loginSuccess({token : data.token, role : data.role}))
+        navigate('/home')
+      }else{
+        dispatch(loginFailed(data.error || 'Invalid credentials'))
+      }
+
+    } catch (error) {
+      if(error instanceof Error)
+      dispatch(loginFailed(`Network Error please try again, ${error.message}`))
+    }
   };
 
   const handleGoogleLogin = () => {
@@ -44,8 +80,9 @@ const LoginPage: React.FC = () => {
               type="submit"
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline transition duration-300 ease-in-out mb-4"
             >
-              Sign In
+              {loading ? "logging In..." : 'Login'}
             </button>
+            {errorMessage && <p className='text-red-700 text-sm'>{errorMessage}</p>}
             <button
               type="button"
               onClick={handleGoogleLogin}
